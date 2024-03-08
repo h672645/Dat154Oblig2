@@ -1,44 +1,15 @@
 ﻿using System;
-using System.Reflection;
+using System.Collections.Generic;
 
 namespace SpaceSim
 {
-
-
     public class SpaceObject
     {
-        private int otherObjectRadius;
-        private int otherRotationalSpeed;
-        private double otherOrbitalRadius;
-        private double otherOrbitalPeriod;
-
-        public static double CalculateXPosition(double time, double orbitalRadius)
-        {
-            double radian = time * Math.PI / 180; // Convert time to radians
-            double X = orbitalRadius * Math.Cos(radian);
-            return X;
-        }
-
-        public static double CalculateYPosition(double time, double orbitalRadius)
-        {
-            double radian = time * Math.PI / 180; // Convert time to radians
-            double Y = orbitalRadius * Math.Sin(radian);
-            return Y;
-        }
-
-
         public String name { get; set; }
+
         public SpaceObject(String name)
         {
             this.name = name;
-        }
-
-        public SpaceObject(string name, int otherObjectRadius, int otherRotationalSpeed, double otherOrbitalRadius, double otherOrbitalPeriod) : this(name)
-        {
-            this.otherObjectRadius = otherObjectRadius;
-            this.otherRotationalSpeed = otherRotationalSpeed;
-            this.otherOrbitalRadius = otherOrbitalRadius;
-            this.otherOrbitalPeriod = otherOrbitalPeriod;
         }
 
         public virtual void Draw()
@@ -46,38 +17,50 @@ namespace SpaceSim
             Console.WriteLine(name);
         }
     }
+
     public class Star : SpaceObject
     {
-        public int ObjectRadius { get; set; }
-        public int RotationalSpeed { get; set; }
-
+        public double ObjectRadius { get; set; }
+        public double RotationalSpeed { get; set; }
         public double OrbitalRadius { get; set; }
         public double OrbitalPeriod { get; set; }
 
-        public Star(String name, int objectRadius, int rotationalSpeed, double orbitalRadius, double orbitalPeriod) : base(name) {
+        public Star(String name, double objectRadius, double rotationalSpeed, double orbitalRadius, double orbitalPeriod) : base(name)
+        {
             this.ObjectRadius = objectRadius;
             this.RotationalSpeed = rotationalSpeed;
             this.OrbitalRadius = orbitalRadius;
             this.OrbitalPeriod = orbitalPeriod;
         }
+
         public override void Draw()
         {
             Console.Write("Star : ");
             base.Draw();
         }
     }
-    public class Planet(String name, int objectRadius, int rotationalSpeed, double orbitalRadius, double orbitalPeriod) : SpaceObject(name)
-    {
-        public int ObjectRadius { get; set; } = objectRadius;
-        public int RotationalSpeed { get; set; } = rotationalSpeed;
 
-        public double OrbitalRadius { get; set; } = orbitalRadius;
-        public double OrbitalPeriod { get; set; } = orbitalPeriod;
-        public List<Moon> Moons { get; set; } = new List<Moon>();
+    public class Planet : SpaceObject
+    {
+        public double ObjectRadius { get; set; }
+        public double RotationalSpeed { get; set; }
+        public double OrbitalRadius { get; set; }
+        public double OrbitalPeriod { get; set; }
+        public List<Moon> Moons { get; set; }
+
+        public Planet(String name, double objectRadius, double rotationalSpeed, double orbitalRadius, double orbitalPeriod)
+            : base(name)
+        {
+            this.ObjectRadius = objectRadius;
+            this.RotationalSpeed = rotationalSpeed;
+            this.OrbitalRadius = orbitalRadius;
+            this.OrbitalPeriod = orbitalPeriod;
+            this.Moons = new List<Moon>();
+        }
 
         public void AddMoon(Moon moon)
         {
-            this.Moons.Add(moon);
+            Moons.Add(moon);
         }
 
         public override void Draw()
@@ -86,13 +69,22 @@ namespace SpaceSim
             base.Draw();
         }
     }
-    public class Moon(String name, int objectRadius, double orbitalRadius, double orbitalPeriod, int otherObjectRadius, int otherRotationalSpeed, double otherOrbitalRadius, double otherOrbitalPeriod, Planet planet) : SpaceObject(name, otherObjectRadius, otherRotationalSpeed, otherOrbitalRadius, otherOrbitalPeriod)
-    {
-        protected int ObjectRadius { get; set; } = objectRadius;
-        protected double OrbitalRadius { get; set; } = orbitalRadius;
-        protected double OrbitalPeriod { get; set; } = orbitalPeriod;
 
-        protected Planet Planet { get; set; } = planet;
+    public class Moon : SpaceObject
+    {
+        public double ObjectRadius { get; set; }
+        public double OrbitalRadius { get; set; }
+        public double OrbitalPeriod { get; set; }
+        public Planet OrbitingPlanet { get; set; }
+
+        public Moon(String name, double objectRadius, double orbitalRadius, double orbitalPeriod, Planet orbitingPlanet)
+            : base(name)
+        {
+            this.ObjectRadius = objectRadius;
+            this.OrbitalRadius = orbitalRadius;
+            this.OrbitalPeriod = orbitalPeriod;
+            this.OrbitingPlanet = orbitingPlanet;
+        }
 
         public override void Draw()
         {
@@ -101,13 +93,20 @@ namespace SpaceSim
         }
     }
 
-    public class Asteroid(String name, int objectRadius, int rotationalSpeed, double orbitalRadius, double orbitalPeriod) : SpaceObject(name)
+    public class Asteroid : SpaceObject
     {
-        public int ObjectRadius { get; set; } = objectRadius;
-        public int RotationalSpeed { get; set; } = rotationalSpeed;
+        public double ObjectRadius { get; set; }
+        public double RotationalSpeed { get; set; }
+        public double OrbitalRadius { get; set; }
+        public double OrbitalPeriod { get; set; }
 
-        public double OrbitalRadius { get; set; } = orbitalRadius;
-        public double OrbitalPeriod { get; set; } = orbitalPeriod;
+        public Asteroid(String name, double objectRadius, double rotationalSpeed, double orbitalRadius, double orbitalPeriod) : base(name)
+        {
+            this.ObjectRadius = objectRadius;
+            this.RotationalSpeed = rotationalSpeed;
+            this.OrbitalRadius = orbitalRadius;
+            this.OrbitalPeriod = orbitalPeriod;
+        }
 
         public override void Draw()
         {
@@ -116,13 +115,18 @@ namespace SpaceSim
         }
     }
 
-    public class Comet(String name, int objectRadius, double orbitalRadius, double orbitalPeriod) : SpaceObject(name)
+    public class Comet : SpaceObject
     {
-        public int ObjectRadius { get; set; } = objectRadius;
+        public double ObjectRadius { get; set; }
+        public double OrbitalRadius { get; set; }
+        public double OrbitalPeriod { get; set; }
 
-
-        public double OrbitalRadius { get; set; } = orbitalRadius;
-        public double OrbitalPeriod { get; set; } = orbitalPeriod;
+        public Comet(String name, double objectRadius, double orbitalRadius, double orbitalPeriod) : base(name)
+        {
+            this.ObjectRadius = objectRadius;
+            this.OrbitalRadius = orbitalRadius;
+            this.OrbitalPeriod = orbitalPeriod;
+        }
 
         public override void Draw()
         {
@@ -131,15 +135,22 @@ namespace SpaceSim
         }
     }
 
-    public class AsteroidBelt(String name, int objectRadius, int rotationalSpeed, double orbitalRadius, double orbitalPeriod, int otherObjectRadius, int otherRotationalSpeed, double otherOrbitalRadius, double otherOrbitalPeriod) : SpaceObject(name, otherObjectRadius, otherRotationalSpeed, otherOrbitalRadius, otherOrbitalPeriod)
+    public class AsteroidBelt : SpaceObject
     {
-        public int ObjectRadius { get; set; } = objectRadius;
-        public int RotationalSpeed { get; set; } = rotationalSpeed;
+        public double ObjectRadius { get; set; }
+        public double RotationalSpeed { get; set; }
+        public double OrbitalRadius { get; set; }
+        public double OrbitalPeriod { get; set; }
 
-        public double OrbitalRadius { get; set; } = orbitalRadius;
-        public double OrbitalPeriod { get; set; } = orbitalPeriod;
+        public AsteroidBelt(String name, double objectRadius, double rotationalSpeed, double orbitalRadius, double orbitalPeriod) : base(name)
+        {
+            this.ObjectRadius = objectRadius;
+            this.RotationalSpeed = rotationalSpeed;
+            this.OrbitalRadius = orbitalRadius;
+            this.OrbitalPeriod = orbitalPeriod;
+        }
 
-        public List<Asteroid> Asteroider { get; set; } = new List<Asteroid>();
+        public List<Asteroid> Asteroids { get; set; } = new List<Asteroid>();
 
         public override void Draw()
         {
@@ -150,24 +161,23 @@ namespace SpaceSim
 
     public class DwarfPlanet : SpaceObject
     {
-
-        public int ObjectRadius { get; set; }
-        public int RotationalSpeed { get; set; }
-
+        public double ObjectRadius { get; set; }
+        public double RotationalSpeed { get; set; }
         public double OrbitalRadius { get; set; }
         public double OrbitalPeriod { get; set; }
-        public DwarfPlanet(String name, int objectRadius, int rotationalSpeed, double orbitalRadius, double orbitalPeriod) : base(name) {
+
+        public DwarfPlanet(String name, double objectRadius, double rotationalSpeed, double orbitalRadius, double orbitalPeriod) : base(name)
+        {
             this.ObjectRadius = objectRadius;
             this.RotationalSpeed = rotationalSpeed;
-            this.OrbitalPeriod = orbitalPeriod;
             this.OrbitalRadius = orbitalRadius;
+            this.OrbitalPeriod = orbitalPeriod;
         }
+
         public override void Draw()
         {
             Console.Write("DwarfPlanet :");
             base.Draw();
         }
-
     }
-
 }
