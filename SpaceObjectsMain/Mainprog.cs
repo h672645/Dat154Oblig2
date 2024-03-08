@@ -9,8 +9,18 @@ class Astronomy
 {
     public static void Main()
     {
+        Console.WriteLine("Enter the number of days since time 0:");
+        string timeInput = Console.ReadLine();
         int time;
 
+        if (!int.TryParse(timeInput, out time))
+        {
+            Console.WriteLine("Invalid input for time. Please enter a number.");
+            return; // Exit the program if the time input is invalid
+        }
+
+        Console.WriteLine("Enter the name of a planet (or press Enter to default to the Sun):");
+        string planetName = Console.ReadLine();
 
         List<SpaceObject> solarSystem = new List<SpaceObject> { 
         
@@ -31,7 +41,7 @@ class Astronomy
         {
             if (planet is Planet planetObj)
             {
-                switch (planetObj.name)
+                switch (planetObj.Name)
                 {
                     case "Earth":
                         planetObj.AddMoon(new Moon("Moon", 384, 27.32, planetObj));
@@ -84,10 +94,38 @@ class Astronomy
 
 
 
-        foreach (SpaceObject obj in solarSystem)
+        SpaceObject selectedPlanet = null;
+        if (string.IsNullOrWhiteSpace(planetName))
         {
-            obj.Draw();
+            selectedPlanet = solarSystem.Find(planet => planet.Name == "Sun");
         }
+        else
+        {
+            selectedPlanet = solarSystem.Find(planet => planet.Name == planetName);
+        }
+
+        if (selectedPlanet == null)
+        {
+            Console.WriteLine("Planet not found. Please enter a valid planet name.");
+            return;
+        }
+
+        Console.WriteLine($"Details of {selectedPlanet.Name}:");
+        Console.WriteLine($"Orbital Distance: {selectedPlanet.OrbitalRadius}");
+        Console.WriteLine($"Orbital Period: {selectedPlanet.OrbitalPeriod}");
+        Console.WriteLine($"Position at time {time}: ({selectedPlanet.CalculateXPosition(time)}, {selectedPlanet.CalculateYPosition(time)})");
+
+        if (selectedPlanet is Planet planetObj2)
+        {
+            foreach (var moon in planetObj2.Moons)
+            {
+                Console.WriteLine($"Moon: {moon.Name}");
+                Console.WriteLine($"Orbital Distance: {moon.OrbitalRadius}");
+                Console.WriteLine($"Orbital Period: {moon.OrbitalPeriod}");
+                Console.WriteLine($"Position at time {time}: ({moon.CalculateXPosition(time)}, {moon.CalculateYPosition(time)})");
+            }
+        }
+
         Console.ReadLine();
 
     }
