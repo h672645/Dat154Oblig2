@@ -71,11 +71,11 @@ namespace SpaceSim
         public double OrbitalPeriod { get; set; }
         public Planet OrbitingPlanet { get; set; }
 
-        public Moon(String name, double orbitalDistance, double orbitalPeriod) : base(name)
+        public Moon(String name, double orbitalDistance, double orbitalPeriod, Planet planet) : base(name)
         {
             this.OrbitalDistance = orbitalDistance;
             this.OrbitalPeriod = orbitalPeriod;  
-            this.OrbitingPlanet = null;
+            this.OrbitingPlanet = planet;
         }
 
         public override void Draw()
