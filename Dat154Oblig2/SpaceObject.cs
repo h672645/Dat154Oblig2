@@ -10,6 +10,9 @@ namespace SpaceSim
 
         public double OrbitalPeriod { get; set; }
 
+        public delegate void DoTickHandler(object sender, EventArgs e);
+        public event DoTickHandler DoTick;
+
         public SpaceObject(String name, double orbitalRadius, double orbitalPeriod)
         {
             this.Name = name;
@@ -33,6 +36,11 @@ namespace SpaceSim
             double angle = 2 * Math.PI * time / OrbitalPeriod;
             return OrbitalRadius * Math.Sin(angle);
         }
+
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            DoTick?.Invoke(this, EventArgs.Empty);
+        }
     }
 
     public class Star : SpaceObject
@@ -47,6 +55,16 @@ namespace SpaceSim
         {
             Console.Write("Star : ");
             base.Draw();
+        }
+
+        public void SubscribeToTick(DoTickHandler handler)
+        {
+            handler += UpdatePosition;
+        }
+
+        private void UpdatePosition(object sender, EventArgs e)
+        {
+            // Update position based on orbital characteristics
         }
     }
 
@@ -70,7 +88,15 @@ namespace SpaceSim
             Console.Write("Planet: ");
             base.Draw();
         }
+        public void SubscribeToTick(DoTickHandler handler)
+        {
+            handler += UpdatePosition;
+        }
 
+        private void UpdatePosition(object sender, EventArgs e)
+        {
+            // Update position based on orbital characteristics
+        }
     }
 
     public class Moon : SpaceObject
@@ -87,6 +113,15 @@ namespace SpaceSim
             Console.Write("Moon : ");
             base.Draw();
         }
+        public void SubscribeToTick(DoTickHandler handler)
+        {
+            handler += UpdatePosition;
+        }
+
+        private void UpdatePosition(object sender, EventArgs e)
+        {
+            // Update position based on orbital characteristics
+        }
     }
 
     public class Asteroid : SpaceObject
@@ -99,6 +134,15 @@ namespace SpaceSim
         {
             Console.Write("Asteroid : ");
             base.Draw();
+        }
+        public void SubscribeToTick(DoTickHandler handler)
+        {
+            handler += UpdatePosition;
+        }
+
+        private void UpdatePosition(object sender, EventArgs e)
+        {
+            // Update position based on orbital characteristics
         }
     }
 
@@ -114,6 +158,15 @@ namespace SpaceSim
         {
             Console.Write("Comet : ");
             base.Draw();
+        }
+        public void SubscribeToTick(DoTickHandler handler)
+        {
+            handler += UpdatePosition;
+        }
+
+        private void UpdatePosition(object sender, EventArgs e)
+        {
+            // Update position based on orbital characteristics
         }
     }
 
@@ -131,6 +184,15 @@ namespace SpaceSim
             Console.Write("AsteroidBelt : ");
             base.Draw();
         }
+        public void SubscribeToTick(DoTickHandler handler)
+        {
+            handler += UpdatePosition;
+        }
+
+        private void UpdatePosition(object sender, EventArgs e)
+        {
+            // Update position based on orbital characteristics
+        }
     }
 
     public class DwarfPlanet : SpaceObject
@@ -144,6 +206,15 @@ namespace SpaceSim
         {
             Console.Write("DwarfPlanet :");
             base.Draw();
+        }
+        public void SubscribeToTick(DoTickHandler handler)
+        {
+            handler += UpdatePosition;
+        }
+
+        private void UpdatePosition(object sender, EventArgs e)
+        {
+            // Update position based on orbital characteristics
         }
     }
 }
