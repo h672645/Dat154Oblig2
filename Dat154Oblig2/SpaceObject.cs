@@ -20,9 +20,14 @@ namespace SpaceSim
 
     public class Star : SpaceObject
     {
-        public Star(String name) : base(name)
+        public double OrbitalDistance {  get; set; }
+
+        public double OrbitalPeriod {  get; set; }
+
+        public Star(String name, double orbitalDistance, double orbitalPeriod) : base(name)
         {
-     
+            OrbitalDistance = orbitalDistance;
+            OrbitalPeriod = orbitalPeriod;
         }
 
         public override void Draw()
@@ -34,10 +39,16 @@ namespace SpaceSim
 
     public class Planet : SpaceObject
     {
+        public double OrbitalDistance { get; set; }
+
+        public double OrbitalPeriod { get; set; }
+
         public List<Moon> Moons { get; set; }
 
-        public Planet(String name) : base(name)
+        public Planet(String name, double orbitalDistance, double orbitalPeriod) : base(name)
         {
+            this.OrbitalDistance = orbitalDistance;
+            this.OrbitalPeriod = orbitalPeriod;
             this.Moons = new List<Moon>();
         }
 
@@ -55,10 +66,15 @@ namespace SpaceSim
 
     public class Moon : SpaceObject
     {
+        public double OrbitalDistance { get; set; }
+
+        public double OrbitalPeriod { get; set; }
         public Planet OrbitingPlanet { get; set; }
 
-        public Moon(String name, Planet orbitingPlanet) : base(name)
+        public Moon(String name, double orbitalDistance, double orbitalPeriod) : base(name)
         {
+            this.OrbitalDistance = orbitalDistance;
+            this.OrbitalPeriod = orbitalPeriod;  
             this.OrbitingPlanet = null;
         }
 
@@ -71,9 +87,14 @@ namespace SpaceSim
 
     public class Asteroid : SpaceObject
     {
-        public Asteroid(String name) : base(name)
-        {
+        public double OrbitalDistance { get; set; }
 
+        public double OrbitalPeriod { get; set; }
+
+        public Asteroid(String name, double orbitalDistance, double orbitalPeriod) : base(name)
+        {
+            this.OrbitalDistance= orbitalDistance;
+            this.OrbitalPeriod= orbitalPeriod;  
         }
 
         public override void Draw()
@@ -85,9 +106,17 @@ namespace SpaceSim
 
     public class Comet : SpaceObject
     {
-        public Comet(String name) : base(name)
+        public double OrbitalDistance { get; set; }
+
+        public double OrbitalPeriod { get; set; }
+
+        public AsteroidBelt AsteroidBelt { get; set; }
+
+        public Comet(String name, AsteroidBelt asteroidBelt, double orbitalDistance, double orbitalPeriod) : base(name)
         {
-            
+            this.OrbitalDistance = orbitalDistance;
+            this.OrbitalPeriod = orbitalPeriod;
+            this.AsteroidBelt = asteroidBelt;
         }
 
         public override void Draw()
@@ -99,10 +128,15 @@ namespace SpaceSim
 
     public class AsteroidBelt : SpaceObject
     {
+        public double OrbitalDistance { get; set; }
 
-        public AsteroidBelt(String name) : base(name)
+        public double OrbitalPeriod { get; set; }
+
+        public AsteroidBelt(String name, double orbitalDistance, double orbitalPeriod) : base(name)
         {
             Asteroids = new List<Asteroid>();
+            this.OrbitalDistance = orbitalDistance;
+            this.OrbitalPeriod= orbitalPeriod; 
         }
 
         public List<Asteroid> Asteroids { get; set; }
@@ -116,9 +150,13 @@ namespace SpaceSim
 
     public class DwarfPlanet : SpaceObject
     {
-        public DwarfPlanet(String name) : base(name)
+        public double OrbitalDistance { get; set; }
+
+        public double OrbitalPeriod { get; set; }
+        public DwarfPlanet(String name, double orbitalDistance, double orbitalPeriod) : base(name)
         {
-            
+            this.OrbitalDistance= orbitalDistance;
+            this.OrbitalPeriod = orbitalPeriod;
         }
 
         public override void Draw()
