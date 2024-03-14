@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Collections.Generic;
 using SpaceSim;
+using Timer = System.Windows.Forms.Timer;
 
 namespace SpaceObjectsForm
 {
@@ -10,6 +11,11 @@ namespace SpaceObjectsForm
     {
         private ComboBox spaceObjectsComboBox; // Declare a ComboBox variable
         private SpaceObject selectedSpaceObject;
+        public float ratio = 500;
+        public Timer timer;
+        public double time = 0;
+        private Bitmap buffer; // Buffered image for drawing
+        private Graphics bufferGraphics; // Graphics object for the buffered image
 
         List<SpaceObject> spaceObjects = new List<SpaceObject>
             {
@@ -51,9 +57,9 @@ namespace SpaceObjectsForm
             exitButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             exitButton.Size = new Size(30, 30);
             exitButton.Location = new Point(this.Width - exitButton.Width - 10, 10);
-            exitButton.Click += (sender, e) => this.Close(); // Close the form when the button is clicked
+            exitButton.Click += (sender, e) => this.Close(); 
 
-            this.Controls.Add(exitButton); // Add the exit button to the form
+            this.Controls.Add(exitButton); 
 
             initializeOtherSpaceObjects();
 
@@ -64,14 +70,26 @@ namespace SpaceObjectsForm
 
             this.Controls.Add(spaceObjectsComboBox);
             selectedSpaceObject = spaceObjects.Find(obj => obj.Name == "Sun");
+
+            buffer = new Bitmap(ClientSize.Width, ClientSize.Height);
+            bufferGraphics = Graphics.FromImage(buffer);
+
+            timer = new Timer();
+            timer.Interval = 1000;
+            timer.Tick += Timer_Tick;
+            timer.Start();
         }
 
         private void initializeOtherSpaceObjects()
         {
+            Star sun = (Star)spaceObjects.Find(obj => obj.Name == "Sun");
+
             foreach (var planet in spaceObjects)
             {
+
                 if (planet is Planet planetObj)
                 {
+                    sun.addPlanet(planetObj);
                     switch (planetObj.Name)
                     {
                         case "Earth":
@@ -136,39 +154,57 @@ namespace SpaceObjectsForm
 
         private void DrawCenteredObject(Graphics g, SpaceObject spaceObject, Brush b)
         {
-            int centerX = this.ClientSize.Width / 2;
-            int centerY = this.ClientSize.Height / 2;
+            float centerX = this.ClientSize.Width / 2f;
+            float centerY = this.ClientSize.Height / 2f;
 
             Brush brush = b;
-            double visualSize = spaceObject.Size;
+            float visualSize = spaceObject.Size;
 
-            int objectX = centerX - (int)(visualSize / 2);
-            int objectY = centerY - (int)(visualSize / 2);
+            float objectX = centerX - (visualSize / 2f);
+            float objectY = centerY - (visualSize / 2f);
 
-            int childX = 0;
-            int childY = 0;
-
-            g.FillEllipse(brush, objectX, objectY, (float)visualSize, (float)visualSize);
-
-
-            if (spaceObject is Star sun)
+            if (spaceObject is Star star)
             {
-                // Iterate over all space objects
                 foreach (SpaceObject childObject in spaceObjects)
                 {
-                    // Check if the current space object orbits the sun
                     if (childObject is Planet planet)
                     {
-                        // Calculate position of the child planet relative to the sun
-                        childX += centerX + (int)childObject.CalculateXPosition(0);
-                        childY += centerY + (int)childObject.CalculateYPosition(0);
+                        float planetX = centerX + (childObject.CalculateXPosition(time)/ratio);
+                        float planetY = centerY + (childObject.CalculateYPosition(time)/ratio);
 
-                        // Draw the child planet
+                        foreach (Moon moon in planet.Moons)
+                        {
+                            float moonX = planetX + (int)moon.CalculateXPosition(time);
+                            float moonY = planetY + (int)moon.CalculateYPosition(time);
+                            brush = GetPlanetColor(moon.Name);
+                            g.FillEllipse(brush, moonX, moonY, moon.Size, moon.Size);
+                        }
+
                         brush = GetPlanetColor(childObject.Name);
-                        g.FillEllipse(b, childX, childY, childObject.Size, childObject.Size);
+                        g.FillEllipse(brush, planetX, planetY, childObject.Size, childObject.Size);
                     }
                 }
             }
+
+            if(spaceObject is Planet planet2)
+            {
+                float planetX = objectX;
+                float planetY = objectY;
+
+                foreach (Moon moon in planet2.Moons)
+                {
+                    float moonX = planetX + (int)moon.CalculateXPosition(time);
+                    float moonY = planetY + (int)moon.CalculateYPosition(time);
+                    brush = GetPlanetColor(moon.Name);
+                    g.FillEllipse(brush, moonX, moonY, moon.Size, moon.Size);
+                }
+
+                brush = GetPlanetColor(spaceObject.Name);
+                g.FillEllipse(brush, planetX, planetY, planet2.Size, planet2.Size);
+            }
+
+            brush = GetPlanetColor(spaceObject.Name);
+            g.FillEllipse(brush, objectX, objectY, (float)visualSize, (float)visualSize);
         }
 
         private Brush GetPlanetColor(string planetName)
@@ -204,27 +240,29 @@ namespace SpaceObjectsForm
             }
         }
 
+        private void Timer_Tick(object sender, EventArgs e)
+        {
+            time += 1.0;
 
+            Invalidate();
+        }
 
         protected override void OnPaint(PaintEventArgs e)
         {
-            double sunSize = 100; // Example size of the sun in pixels
-            double averagePlanetDistance = 100; // Example average distance of planets from the sun in pixels
-            double scalingFactor = sunSize / averagePlanetDistance;
-
-
-            base.OnPaint(e);
-            Graphics g = e.Graphics;
-            this.BackColor = Color.Black;
-
-            
+            if (bufferGraphics == null || buffer == null || buffer.Width != ClientSize.Width || buffer.Height != ClientSize.Height)
+            {
+                buffer = new Bitmap(ClientSize.Width, ClientSize.Height);
+                bufferGraphics = Graphics.FromImage(buffer);
+            }
+            bufferGraphics.Clear(Color.Black);
 
             if (selectedSpaceObject != null)
             {
-                DrawCenteredObject(g, selectedSpaceObject, GetPlanetColor(selectedSpaceObject.Name));
+                DrawCenteredObject(bufferGraphics, selectedSpaceObject, GetPlanetColor(selectedSpaceObject.Name));
             }
 
-            // Optionally, draw moons and other celestial bodies here
+            e.Graphics.DrawImageUnscaled(buffer, 0, 0);
         }
+
     }
 }

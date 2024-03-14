@@ -22,16 +22,16 @@ namespace SpaceSim
             Size = 0;
         }
 
-        public virtual double CalculateXPosition(double time)
+        public virtual float CalculateXPosition(double time)
         {
             double angle = 2 * Math.PI * time / OrbitalPeriod;
-            return 0 * Math.Cos(angle);
+            return (float)(OrbitalRadius * Math.Sin(angle));
         }
 
-        public virtual double CalculateYPosition(double time)
+        public virtual float CalculateYPosition(double time)
         {
             double angle = 2 * Math.PI * time / OrbitalPeriod;
-            return 0 * Math.Sin(angle);
+            return (float)(OrbitalRadius * Math.Cos(angle));
         }
 
         private void Timer_Tick(object sender, EventArgs e)
@@ -49,16 +49,21 @@ namespace SpaceSim
             Size = 200;
         }
 
-        public override double CalculateXPosition(double time)
+        public override float CalculateXPosition(double time)
         {
             double angle = 2 * Math.PI * time / OrbitalPeriod;
-            return 500 * Math.Cos(angle);
+            return (float)(OrbitalRadius * Math.Sin(angle));
         }
 
-        public override double CalculateYPosition(double time)
+        public override float CalculateYPosition(double time)
         {
             double angle = 2 * Math.PI * time / OrbitalPeriod;
-            return 500 * Math.Sin(angle);
+            return (float)(OrbitalRadius * Math.Cos(angle));
+        }
+
+        public void addPlanet(Planet planet)
+        {
+            this.planets.Add(planet);
         }
     }
 
@@ -77,16 +82,16 @@ namespace SpaceSim
             Moons.Add(moon);
         }
 
-        public override double CalculateXPosition(double time)
+        public override float CalculateXPosition(double time)
         {
             double angle = 2 * Math.PI * time / OrbitalPeriod;
-            return 300 * Math.Cos(angle);
+            return (float)(OrbitalRadius * Math.Sin(angle));
         }
 
-        public override double CalculateYPosition(double time)
+        public override float CalculateYPosition(double time)
         {
             double angle = 2 * Math.PI * time / OrbitalPeriod;
-            return 300 * Math.Sin(angle);
+            return (float)(OrbitalRadius * Math.Cos(angle));
         }
 
     }
@@ -101,16 +106,16 @@ namespace SpaceSim
             Size = 50;
         }
 
-        public override double CalculateXPosition(double time)
+        public override float CalculateXPosition(double time)
         {
             double angle = 2 * Math.PI * time / OrbitalPeriod;
-            return 100 * Math.Cos(angle);
+            return (float)(OrbitalRadius * Math.Sin(angle));
         }
 
-        public override double CalculateYPosition(double time)
+        public override float CalculateYPosition(double time)
         {
             double angle = 2 * Math.PI * time / OrbitalPeriod;
-            return 100 * Math.Sin(angle);
+            return (float)(OrbitalRadius * Math.Cos(angle));
         }
 
     }
