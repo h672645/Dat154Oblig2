@@ -145,6 +145,9 @@ namespace SpaceObjectsForm
             int objectX = centerX - (int)(visualSize / 2);
             int objectY = centerY - (int)(visualSize / 2);
 
+            int childX = 0;
+            int childY = 0;
+
             g.FillEllipse(brush, objectX, objectY, (float)visualSize, (float)visualSize);
 
 
@@ -157,10 +160,8 @@ namespace SpaceObjectsForm
                     if (childObject is Planet planet)
                     {
                         // Calculate position of the child planet relative to the sun
-                        double angle = Math.Atan2(planet.CalculateYPosition(0), planet.CalculateXPosition(0));
-                        double distanceFromSun = planet.OrbitalRadius;
-                        int childX = centerX + 50;
-                        int childY = centerY + 100;
+                        childX += centerX + (int)childObject.CalculateXPosition(0);
+                        childY += centerY + (int)childObject.CalculateYPosition(0);
 
                         // Draw the child planet
                         brush = GetPlanetColor(childObject.Name);
