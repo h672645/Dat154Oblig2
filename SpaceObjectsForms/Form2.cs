@@ -1,15 +1,57 @@
 ﻿using System;
 using System.Drawing;
 using System.Windows.Forms;
+using SpaceSim;
+using System.Collections.Generic;
 
 namespace Solarsystemanimation
 {
     public partial class Form2 : Form
     {
+        private ComboBox spaceObjectsComboBox; // Declare a ComboBox variable
         public Form2()
         {
             InitializeComponent();
             this.DoubleBuffered = true; // Enable double buffering to reduce flickering
+            this.WindowState = FormWindowState.Maximized; // Set window state to maximize
+            this.FormBorderStyle = FormBorderStyle.None; // Remove window border
+
+            // Initialize and configure the ComboBox
+            spaceObjectsComboBox = new ComboBox();
+            spaceObjectsComboBox.DropDownStyle = ComboBoxStyle.DropDownList;
+            spaceObjectsComboBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            spaceObjectsComboBox.Location = new Point(10, 10); // Position the ComboBox in the top left corner
+            spaceObjectsComboBox.SelectedIndexChanged += SpaceObjectsComboBox_SelectedIndexChanged; // Handle selection change event
+
+            // Add space objects to the ComboBox
+            List<SpaceObject> spaceObjects = new List<SpaceObject>
+            {
+                new Star("Sun", 0, 0),
+                new Planet("Mercury", 57910, 87.97),
+                new Planet("Venus", 108200, 224.70),
+                new Planet("Earth", 149600, 365.26),
+                new Planet("Mars", 227940, 686.98),
+                new Planet("Jupiter", 778330, 4332.71),
+                new Planet("Saturn", 1429400, 10759.50),
+                new Planet("Uranus", 2870990, 30685.00),
+                new Planet("Neptune", 4504300, 60190.00),
+                new Planet("Pluto", 5913520, 90550.00)
+            };
+
+            foreach (var spaceObject in spaceObjects)
+            {
+                spaceObjectsComboBox.Items.Add(spaceObject.Name);
+            }
+
+            this.Controls.Add(spaceObjectsComboBox); // Add the ComboBox to the form
+        }
+
+        private void SpaceObjectsComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Handle selection change event here
+            string selectedObjectName = spaceObjectsComboBox.SelectedItem.ToString();
+            // You can use the selectedObjectName to access the selected space object
+            // For example, you can find the selected space object in the spaceObjects list and perform further actions
         }
 
         public class CelestialBody
