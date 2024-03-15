@@ -175,7 +175,7 @@ namespace SpaceObjectsForm
             Invalidate();
         }
 
-        private void DrawCenteredObject(Graphics g, SpaceObject spaceObject, Brush b)
+        private SpaceObject DrawCenteredObject(Graphics g, SpaceObject spaceObject, Brush b)
         {
             float centerX = this.ClientSize.Width / 2f;
             float centerY = this.ClientSize.Height / 2f;
@@ -233,6 +233,9 @@ namespace SpaceObjectsForm
 
             brush = GetPlanetColor(spaceObject.Name);
             g.FillEllipse(brush, objectX, objectY, (float)visualSize, (float)visualSize);
+            PointF namePosition3 = new PointF(objectX, objectY + (float)visualSize + 5);
+            if (names) g.DrawString(spaceObject.Name, Font, Brushes.White, namePosition3);
+            return selectedSpaceObject;
         }
 
         private Brush GetPlanetColor(string planetName)
@@ -341,6 +344,7 @@ namespace SpaceObjectsForm
 
         protected override void OnPaint(PaintEventArgs e)
         {
+            SpaceObject spaceobject = null;
             if (bufferGraphics == null || buffer == null || buffer.Width != ClientSize.Width || buffer.Height != ClientSize.Height)
             {
                 buffer = new Bitmap(ClientSize.Width, ClientSize.Height);
@@ -350,27 +354,47 @@ namespace SpaceObjectsForm
 
             if (selectedSpaceObject != null)
             {
-                DrawCenteredObject(bufferGraphics, selectedSpaceObject, GetPlanetColor(selectedSpaceObject.Name));
+                spaceobject = DrawCenteredObject(bufferGraphics, selectedSpaceObject, GetPlanetColor(selectedSpaceObject.Name));
             }
 
             e.Graphics.DrawImageUnscaled(buffer, 0, 0);
 
+            if(spaceobject != null && spaceobject is Star sun)
+            {
+                string planetText = $"Object: {sun.Name}({sun.GetType()})\nPlanets: {sun.planets.Count}";
+                SizeF planetTextSize = e.Graphics.MeasureString(planetText, Font);
+                PointF planetTextPosition = new PointF(10, ClientSize.Height - planetTextSize.Height - 200);
+                e.Graphics.DrawString(planetText, Font, Brushes.White, planetTextPosition);
+            }
+
+            if(spaceobject != null && spaceobject is Planet planet)
+            {
+                string planetText = $"Object: {planet.Name}({planet.GetType()})\nMoons: {planet.Moons.Count}" +
+                    $"\nOrbitalRadius: {planet.OrbitalRadius} \nOrbitalPeriod: {planet.OrbitalPeriod}";
+                SizeF planetTextSize = e.Graphics.MeasureString(planetText, Font);
+                PointF planetTextPosition = new PointF(10, ClientSize.Height - planetTextSize.Height - 200);
+                e.Graphics.DrawString(planetText, Font, Brushes.White, planetTextPosition);
+            }
+
             // Display ratio
-            string ratioText = $"Ratio: {ratio:F2}";
+            string ratioText = $"Ratio  (LEFT/RIGHT): {ratio:F2}";
             SizeF ratioTextSize = e.Graphics.MeasureString(ratioText, Font);
             PointF ratioTextPosition = new PointF(10, ClientSize.Height - ratioTextSize.Height - 10);
             e.Graphics.DrawString(ratioText, Font, Brushes.White, ratioTextPosition);
 
             // Display time speed
-            string timeSpeedText = $"Time Speed: {timeSpeed}";
+            double daysPerTick = timeSpeed * 20;
+            string timeSpeedText = $"Days/s (UP/DOWN): {daysPerTick:F2}";
             SizeF timeSpeedTextSize = e.Graphics.MeasureString(timeSpeedText, Font);
             PointF timeSpeedTextPosition = new PointF(10, ratioTextPosition.Y - timeSpeedTextSize.Height - 5);
             e.Graphics.DrawString(timeSpeedText, Font, Brushes.White, timeSpeedTextPosition);
 
             // Display time
-            string timeText = $"Time: {time:F2}";
+            int years = (int)time / 365;
+            int days = (int)time % 365;
+            string timeText = $"Days: {days}\nYears: {years}\nTotal: {time:F2}";
             SizeF timeTextSize = e.Graphics.MeasureString(timeText, Font);
-            PointF timeTextPosition = new PointF(10, timeSpeedTextPosition.Y - timeTextSize.Height - 5);
+            PointF timeTextPosition = new PointF(10, timeSpeedTextPosition.Y - timeTextSize.Height - 25);
             e.Graphics.DrawString(timeText, Font, Brushes.White, timeTextPosition);
         }
 
