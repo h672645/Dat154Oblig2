@@ -4,6 +4,8 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using SpaceSim;
 using Timer = System.Windows.Forms.Timer;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Button;
+using CheckBox = System.Windows.Forms.CheckBox;
 
 namespace SpaceObjectsForm
 {
@@ -13,6 +15,8 @@ namespace SpaceObjectsForm
         private SpaceObject selectedSpaceObject;
         public static float ratio = 500;
         private double timeSpeed = 1;
+        private CheckBox checkBox;
+        private bool names;
         public Timer timer;
         public double time = 0;
         private Bitmap buffer;
@@ -57,6 +61,14 @@ namespace SpaceObjectsForm
             spaceObjectsComboBox.Location = new Point(10, 10); // Position the ComboBox in the top left corner
             spaceObjectsComboBox.SelectedIndexChanged += SpaceObjectsComboBox_SelectedIndexChanged; // Handle selection change event
             spaceObjectsComboBox.KeyDown += SpaceObjectsComboBox_KeyDown;
+
+            checkBox = new CheckBox();
+            checkBox.Text = "Names";
+            checkBox.AutoSize = true;
+            checkBox.Location = new Point(10, 50); // Adjust position as needed
+            checkBox.CheckedChanged += CheckBox_CheckedChanged;
+
+            this.Controls.Add(checkBox);
 
             Button exitButton = new Button();
             exitButton.Text = "X";
@@ -189,10 +201,14 @@ namespace SpaceObjectsForm
                             float moonY = planetY + (int)(moon.CalculateYPosition(time) /ratio) + moon.Size / 2;
                             brush = GetPlanetColor(moon.Name);
                             g.FillEllipse(brush, moonX, moonY, moon.Size, moon.Size);
+                            PointF namePosition2 = new PointF(moonX, moonY + (float)moon.Size + 5); 
+                            if(names)g.DrawString(moon.Name, Font, Brushes.White, namePosition2);
                         }
 
                         brush = GetPlanetColor(childObject.Name);
                         g.FillEllipse(brush, planetX, planetY, childObject.Size, childObject.Size);
+                        PointF namePosition = new PointF(planetX, planetY + (float)planet.Size + 5); 
+                        if(names)g.DrawString(planet.Name, Font, Brushes.White, namePosition);
                     }
                 }
             }
@@ -208,9 +224,11 @@ namespace SpaceObjectsForm
                     float moonY = objectY + (int)(moon.CalculateYPosition(time) / ratio) + moon.Size / 2;
                     brush = GetPlanetColor(moon.Name);
                     g.FillEllipse(brush, moonX, moonY, moon.Size, moon.Size);
+                    PointF namePosition2 = new PointF(moonX, moonY + (float)moon.Size + 5);
+                    if(names)g.DrawString(moon.Name, Font, Brushes.White, namePosition2);
                 }
-
-                brush = GetPlanetColor(spaceObject.Name);
+                PointF namePosition = new PointF(objectX, objectY + (float)visualSize + 5);
+                if(names)g.DrawString(spaceObject.Name, Font, Brushes.White, namePosition);
             }
 
             brush = GetPlanetColor(spaceObject.Name);
@@ -307,6 +325,18 @@ namespace SpaceObjectsForm
         private void SpaceObjectsComboBox_KeyDown(object sender, KeyEventArgs e)
         {
             e.Handled = true;
+        }
+
+        private void CheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            bool isChecked = checkBox.Checked;
+            if (isChecked)
+            {
+                names = true;
+            } else
+            {
+                names = false;
+            }
         }
 
         protected override void OnPaint(PaintEventArgs e)
