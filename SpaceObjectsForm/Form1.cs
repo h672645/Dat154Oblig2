@@ -9,13 +9,18 @@ namespace SpaceObjectsForm
 {
     public partial class Form1 : Form
     {
-        private ComboBox spaceObjectsComboBox; // Declare a ComboBox variable
+        private ComboBox spaceObjectsComboBox;
         private SpaceObject selectedSpaceObject;
-        public float ratio = 500;
+        public static float ratio = 500;
         public Timer timer;
         public double time = 0;
-        private Bitmap buffer; // Buffered image for drawing
-        private Graphics bufferGraphics; // Graphics object for the buffered image
+        private Bitmap buffer;
+        private Graphics bufferGraphics;
+
+        private bool leftArrowKeyDown = false;
+        private bool rightArrowKeyDown = false;
+
+        private int timespeed = 0;
 
         List<SpaceObject> spaceObjects = new List<SpaceObject>
             {
@@ -36,9 +41,13 @@ namespace SpaceObjectsForm
         public Form1()
         {
             InitializeComponent();
+            this.KeyDown += Form1_KeyDown;
+            this.KeyUp += Form1_KeyUp;
             this.DoubleBuffered = true; // Enable double buffering to reduce flickering
             this.WindowState = FormWindowState.Maximized; // Set window state to maximize
             this.FormBorderStyle = FormBorderStyle.None; // Remove window border
+
+            this.KeyPreview = true;
 
             // Initialize and configure the ComboBox
             spaceObjectsComboBox = new ComboBox();
@@ -46,6 +55,7 @@ namespace SpaceObjectsForm
             spaceObjectsComboBox.Anchor = AnchorStyles.Top | AnchorStyles.Left;
             spaceObjectsComboBox.Location = new Point(10, 10); // Position the ComboBox in the top left corner
             spaceObjectsComboBox.SelectedIndexChanged += SpaceObjectsComboBox_SelectedIndexChanged; // Handle selection change event
+            spaceObjectsComboBox.KeyDown += SpaceObjectsComboBox_KeyDown;
 
             Button exitButton = new Button();
             exitButton.Text = "X";
@@ -57,9 +67,9 @@ namespace SpaceObjectsForm
             exitButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             exitButton.Size = new Size(30, 30);
             exitButton.Location = new Point(this.Width - exitButton.Width - 10, 10);
-            exitButton.Click += (sender, e) => this.Close(); 
+            exitButton.Click += (sender, e) => this.Close();
 
-            this.Controls.Add(exitButton); 
+            this.Controls.Add(exitButton);
 
             initializeOtherSpaceObjects();
 
@@ -75,7 +85,7 @@ namespace SpaceObjectsForm
             bufferGraphics = Graphics.FromImage(buffer);
 
             timer = new Timer();
-            timer.Interval = 1000;
+            timer.Interval = 50;
             timer.Tick += Timer_Tick;
             timer.Start();
         }
@@ -93,7 +103,7 @@ namespace SpaceObjectsForm
                     switch (planetObj.Name)
                     {
                         case "Earth":
-                            planetObj.AddMoon(new Moon("Moon", 384, 27.32, planetObj));
+                            planetObj.AddMoon(new Moon("Moon", 100, 27.32, planetObj));
                             break;
 
                         case "Mars":
@@ -144,7 +154,7 @@ namespace SpaceObjectsForm
 
         private void SpaceObjectsComboBox_SelectedIndexChanged(object sender, EventArgs e)
         {
-           
+
             string selectedObjectName = spaceObjectsComboBox.SelectedItem.ToString();
 
             selectedSpaceObject = spaceObjects.Find(obj => obj.Name == selectedObjectName);
@@ -169,13 +179,13 @@ namespace SpaceObjectsForm
                 {
                     if (childObject is Planet planet)
                     {
-                        float planetX = centerX + (childObject.CalculateXPosition(time)/ratio);
-                        float planetY = centerY + (childObject.CalculateYPosition(time)/ratio);
+                        float planetX = centerX + (childObject.CalculateXPosition(time) / ratio) - planet.Size / 2;
+                        float planetY = centerY + (childObject.CalculateYPosition(time) / ratio) - planet.Size / 2;
 
                         foreach (Moon moon in planet.Moons)
                         {
-                            float moonX = planetX + (int)moon.CalculateXPosition(time);
-                            float moonY = planetY + (int)moon.CalculateYPosition(time);
+                            float moonX = planetX + (int)(moon.CalculateXPosition(time) / ratio) + moon.Size / 2;
+                            float moonY = planetY + (int)(moon.CalculateYPosition(time) /ratio) + moon.Size / 2;
                             brush = GetPlanetColor(moon.Name);
                             g.FillEllipse(brush, moonX, moonY, moon.Size, moon.Size);
                         }
@@ -186,21 +196,20 @@ namespace SpaceObjectsForm
                 }
             }
 
-            if(spaceObject is Planet planet2)
+            if (spaceObject is Planet planet2)
             {
-                float planetX = objectX;
-                float planetY = objectY;
+                float planetX = objectX - planet2.Size / 2;
+                float planetY = objectY - planet2.Size / 2;
 
                 foreach (Moon moon in planet2.Moons)
                 {
-                    float moonX = planetX + (int)moon.CalculateXPosition(time);
-                    float moonY = planetY + (int)moon.CalculateYPosition(time);
+                    float moonX = objectX + (int)(moon.CalculateXPosition(time) / ratio) + moon.Size / 2;
+                    float moonY = objectY + (int)(moon.CalculateYPosition(time) / ratio) + moon.Size / 2;
                     brush = GetPlanetColor(moon.Name);
                     g.FillEllipse(brush, moonX, moonY, moon.Size, moon.Size);
                 }
 
                 brush = GetPlanetColor(spaceObject.Name);
-                g.FillEllipse(brush, planetX, planetY, planet2.Size, planet2.Size);
             }
 
             brush = GetPlanetColor(spaceObject.Name);
@@ -209,10 +218,10 @@ namespace SpaceObjectsForm
 
         private Brush GetPlanetColor(string planetName)
         {
-           
+
             Brush defaultBrush = Brushes.White;
 
-           
+
             switch (planetName)
             {
                 case "Sun":
@@ -226,15 +235,15 @@ namespace SpaceObjectsForm
                 case "Mars":
                     return Brushes.Red;
                 case "Jupiter":
-                    return Brushes.SandyBrown; 
+                    return Brushes.Brown;
                 case "Saturn":
                     return Brushes.Beige;
                 case "Uranus":
-                    return Brushes.Cyan; 
+                    return Brushes.Cyan;
                 case "Neptune":
-                    return Brushes.AliceBlue; 
+                    return Brushes.AliceBlue;
                 case "Pluto":
-                    return Brushes.Silver; 
+                    return Brushes.Silver;
                 default:
                     return defaultBrush;
             }
@@ -242,9 +251,49 @@ namespace SpaceObjectsForm
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            time += 1.0;
+            time += 1;
+
+            if (leftArrowKeyDown)
+            {
+                ratio /= 1.1f;
+                if (ratio < 0) ratio = 0;
+            }
+            else if (rightArrowKeyDown)
+            {
+                ratio *= 1.1f;
+            }
 
             Invalidate();
+        }
+
+        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Left)
+            {
+                leftArrowKeyDown = true;
+            }
+            else if (e.KeyCode == Keys.Right)
+            {
+                rightArrowKeyDown = true;
+            }
+        }
+
+        private void Form1_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Left)
+            {
+                leftArrowKeyDown = false;
+            }
+            else if (e.KeyCode == Keys.Right)
+            {
+                rightArrowKeyDown = false;
+            }
+        }
+
+
+        private void SpaceObjectsComboBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            e.Handled = true;
         }
 
         protected override void OnPaint(PaintEventArgs e)
@@ -262,6 +311,11 @@ namespace SpaceObjectsForm
             }
 
             e.Graphics.DrawImageUnscaled(buffer, 0, 0);
+
+            string ratioText = $"Ratio: {ratio:F2}";
+            SizeF ratioTextSize = e.Graphics.MeasureString(ratioText, Font);
+            PointF ratioTextPosition = new PointF(10, ClientSize.Height - ratioTextSize.Height - 10);
+            e.Graphics.DrawString(ratioText, Font, Brushes.White, ratioTextPosition);
         }
 
     }
