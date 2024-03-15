@@ -12,6 +12,7 @@ namespace SpaceObjectsForm
         private ComboBox spaceObjectsComboBox;
         private SpaceObject selectedSpaceObject;
         public static float ratio = 500;
+        private double timeSpeed = 1;
         public Timer timer;
         public double time = 0;
         private Bitmap buffer;
@@ -251,7 +252,7 @@ namespace SpaceObjectsForm
 
         private void Timer_Tick(object sender, EventArgs e)
         {
-            time += 1;
+            time += timeSpeed;
 
             if (leftArrowKeyDown)
             {
@@ -271,10 +272,22 @@ namespace SpaceObjectsForm
             if (e.KeyCode == Keys.Left)
             {
                 leftArrowKeyDown = true;
+                ratio /= 1.1f; // Decrement the ratio
+                if (ratio < 0) ratio = 0;
             }
             else if (e.KeyCode == Keys.Right)
             {
                 rightArrowKeyDown = true;
+                ratio *= 1.1f; // Increment the ratio
+            }
+            else if (e.KeyCode == Keys.Up)
+            {
+                timeSpeed *= 1.1; // Increase time speed
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                timeSpeed /= 1.1; // Decrease time speed
+                if (timeSpeed < 0) timeSpeed = 0; // Ensure non-negative speed
             }
         }
 
@@ -312,10 +325,23 @@ namespace SpaceObjectsForm
 
             e.Graphics.DrawImageUnscaled(buffer, 0, 0);
 
+            // Display ratio
             string ratioText = $"Ratio: {ratio:F2}";
             SizeF ratioTextSize = e.Graphics.MeasureString(ratioText, Font);
             PointF ratioTextPosition = new PointF(10, ClientSize.Height - ratioTextSize.Height - 10);
             e.Graphics.DrawString(ratioText, Font, Brushes.White, ratioTextPosition);
+
+            // Display time speed
+            string timeSpeedText = $"Time Speed: {timeSpeed}";
+            SizeF timeSpeedTextSize = e.Graphics.MeasureString(timeSpeedText, Font);
+            PointF timeSpeedTextPosition = new PointF(10, ratioTextPosition.Y - timeSpeedTextSize.Height - 5);
+            e.Graphics.DrawString(timeSpeedText, Font, Brushes.White, timeSpeedTextPosition);
+
+            // Display time
+            string timeText = $"Time: {time:F2}";
+            SizeF timeTextSize = e.Graphics.MeasureString(timeText, Font);
+            PointF timeTextPosition = new PointF(10, timeSpeedTextPosition.Y - timeTextSize.Height - 5);
+            e.Graphics.DrawString(timeText, Font, Brushes.White, timeTextPosition);
         }
 
     }
